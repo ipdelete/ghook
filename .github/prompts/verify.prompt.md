@@ -1,6 +1,6 @@
-# Test Command
+# Verify Command
 
-Pull the latest changes from the remote branch and run the test suite to validate everything works correctly.
+Pull the latest changes from the remote branch and run the test suite to verify everything works correctly after code review changes have been addressed.
 
 ## Instructions
 
@@ -76,6 +76,8 @@ Tests: 8 passed in 3.45s
 
 ## Notes
 
+- This command is intended to be run after code review feedback has been addressed
+- Use this to verify changes made by others on the PR branch work correctly before merging
 - This command uses `--rebase` to maintain a linear history when pulling
 - Tests run with `-v` (verbose) flag for detailed output
 - If you want more detailed output, you can manually run `uv run pytest -vv`
