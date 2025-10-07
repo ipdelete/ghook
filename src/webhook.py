@@ -72,8 +72,8 @@ def sanitize_path_component(component: str) -> str:
     if ".." in component or "/" in component or "\\" in component:
         raise ValueError(f"Invalid path component: {component}")
     
-    # Allow only alphanumeric, hyphens, underscores, and dots (not at start)
-    if not re.match(r'^[a-zA-Z0-9][\w.-]*$', component):
+    # Allow only alphanumeric, hyphens, underscores, and dots (not at start or end, and no consecutive dots)
+    if not re.match(r'^[a-zA-Z0-9](?:[\w-]|(?:\.(?!\.)))*[a-zA-Z0-9_-]$', component):
         raise ValueError(f"Invalid characters in path component: {component}")
     
     return component
