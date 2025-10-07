@@ -9,6 +9,15 @@ Quick setup for testing GitHub webhooks locally using Microsoft DevTunnel.
    cp .env.sample .env
    ```
    Edit `.env` and set your `GITHUB_WEBHOOK_SECRET` (generate one with `openssl rand -hex 32`)
+   
+   **Optional: Enable Repository Cloning**
+   ```bash
+   CLONE_REPOS=true                    # Enable auto-cloning (default: false)
+   CLONE_BASE_DIR=./repos              # Base directory (default: ./repos)
+   CLONE_UPDATE_EXISTING=false         # Pull updates if exists (default: false)
+   ```
+   
+   Note: Repository cloning requires the `gh` CLI to be installed and authenticated (`gh auth login`)
 
 2. **Start DevTunnel**
    ```bash
@@ -29,7 +38,7 @@ Quick setup for testing GitHub webhooks locally using Microsoft DevTunnel.
    - Events: Select "Issues"
    - Save webhook
 
-The webhook will print issue details to the console when issues are created or updated.
+The webhook will print issue details to the console when issues are created or updated. If `CLONE_REPOS=true`, it will also automatically clone the repository locally.
 
 ## Testing
 
