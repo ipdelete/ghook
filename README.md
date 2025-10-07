@@ -30,3 +30,26 @@ Quick setup for testing GitHub webhooks locally using Microsoft DevTunnel.
    - Save webhook
 
 The webhook will print issue details to the console when issues are created or updated.
+
+## Testing
+
+Run the integration test suite to verify the webhook server works correctly:
+
+```bash
+# Run all tests
+uv run pytest
+
+# Run tests with verbose output
+uv run pytest -v
+
+# Run tests with even more verbose output
+uv run pytest -vv
+
+# Run specific test file
+uv run pytest tests/test_webhook_integration.py -v
+
+# Run specific test
+uv run pytest tests/test_webhook_integration.py::test_valid_webhook_with_correct_signature -v
+```
+
+The tests are integration tests that start the actual webhook server as a subprocess and send real HTTP requests to validate behavior. No external services or real GitHub credentials are needed - tests run completely offline and use mock payloads with test secrets.

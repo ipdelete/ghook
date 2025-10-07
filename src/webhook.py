@@ -96,12 +96,15 @@ async def github_webhook(request: Request):
 
 def main() -> None:
     """Start the webhook server."""
+    # Allow port configuration via environment variable for testing
+    port = int(os.getenv("WEBHOOK_PORT", "8080"))
+    
     print("🚀 Starting GitHub webhook server...")
-    print("📡 Listening on http://0.0.0.0:8080/webhook")
+    print(f"📡 Listening on http://0.0.0.0:{port}/webhook")
     print("💡 Configure your GitHub webhook to point to this endpoint")
     print("\nPress Ctrl+C to stop the server\n")
     
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    uvicorn.run(app, host="0.0.0.0", port=port)
 
 
 if __name__ == "__main__":
