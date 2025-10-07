@@ -3,14 +3,14 @@
 Create a new plan to implement a feature using the exact specified markdown `Plan Format`. Follow the `Instructions` to create the plan and use the `Relevant Files` to focus on the right files.
 
 ## Variables
-spec_file: $1
+feature_description: $ARGUMENTS
 
 ## Instructions
 
-- IMPORTANT: You're writing a plan to implement a net new feature based on the specification file that will add value to the application.
-- IMPORTANT: The specification describes the feature that will be implemented. Remember we're not implementing the feature, we're creating an actionable implementation plan based on the `Plan Format` below.
-- Create the plan in the `specs/` directory with filename: `{spec_file_basename}-implementation-plan.md`
-  - Replace `{spec_file_basename}` with the base name of the spec file without extension (e.g., "repository-cloning-feature" becomes "repository-cloning-feature-implementation-plan.md")
+- IMPORTANT: You're writing a plan to implement a net new feature based on the user's feature description that will add value to the application.
+- IMPORTANT: The feature description contains the purpose and requirements for the feature. Remember we're not implementing the feature, we're creating an actionable implementation plan based on the `Plan Format` below.
+- Create the plan in the `specs/` directory with a descriptive filename: `{feature-name}-implementation-plan.md`
+  - Replace `{feature-name}` with a kebab-case name derived from the feature description (e.g., "Add webhook logging" becomes "webhook-logging-implementation-plan.md")
 - Use the `Plan Format` below to create the plan.
 - Research the codebase to understand existing patterns, architecture, and conventions before planning the feature.
 - IMPORTANT: Replace every <placeholder> in the `Plan Format` with the requested value. Add as much detail as needed to implement the feature successfully.
@@ -43,9 +43,6 @@ Ignore all other files in the codebase.
 
 ```md
 # Feature: <feature name>
-
-## Metadata
-spec_file: `{spec_file}`
 
 ## Feature Description
 <describe the feature in detail, including its purpose and value to users>
@@ -109,7 +106,7 @@ Example commands:
 ```
 
 ## Feature
-Read the specification file from the `spec_file` variable and extract the feature details.
+Use the feature description from the `feature_description` variable to create the implementation plan.
 
 ## Report
 

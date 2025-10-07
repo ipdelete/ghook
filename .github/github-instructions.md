@@ -67,6 +67,68 @@ You can extend the webhook handler in `webhook.py` to support additional events 
 
 5. Test by creating an issue in your repository and watch the console output
 
+## Testing
+
+### Running Tests
+
+This repository includes comprehensive integration tests for the webhook server. The tests start an actual webhook server as a subprocess and send real HTTP requests to validate behavior.
+
+Run all tests:
+```bash
+uv run pytest
+```
+
+Run tests with verbose output:
+```bash
+uv run pytest -v
+```
+
+Run tests with detailed output:
+```bash
+uv run pytest -vv
+```
+
+Run a specific test file:
+```bash
+uv run pytest tests/test_webhook_integration.py -v
+```
+
+Run a specific test:
+```bash
+uv run pytest tests/test_webhook_integration.py::test_valid_webhook_with_correct_signature -v
+```
+
+### Test Coverage
+
+The integration test suite covers:
+
+- **Valid webhook requests**: Verifies that properly signed webhook requests are accepted and processed correctly
+- **Signature verification**: Tests that invalid or missing signatures are properly rejected with 401 status
+- **Event handling**: Validates different GitHub event types (issues, pull requests, etc.) are handled appropriately
+- **Error handling**: Tests malformed JSON payloads and edge cases return proper error responses
+- **Server lifecycle**: Ensures the webhook server starts, responds to requests, and shuts down cleanly
+
+### Test Environment
+
+The tests run completely offline and do not require:
+- A real GitHub account or repository
+- External network access
+- Production credentials or secrets
+
+All tests use:
+- Mock webhook payloads with realistic data structures
+- Test secrets generated specifically for the test suite
+- A dedicated test server running on port 18080 (to avoid conflicts)
+- Automatic server startup and cleanup via pytest fixtures
+
+### Test Fixtures
+
+The test suite provides reusable fixtures in `tests/conftest.py`:
+
+- **`webhook_server`**: Starts a webhook server subprocess with test configuration and cleans it up after tests
+- **`generate_signature(payload, secret)`**: Creates valid HMAC SHA-256 signatures for webhook payloads
+- **`create_issue_payload(**kwargs)`**: Generates realistic GitHub issue webhook payloads with customizable fields
+
 ## Security Considerations
 
 ### Webhook Signature Verification
