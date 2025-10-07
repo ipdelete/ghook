@@ -33,9 +33,9 @@ def webhook_server():
     # Path to webhook.py
     webhook_path = Path(__file__).parent.parent / "src" / "webhook.py"
     
-    # Start the server with modified port
+    # Start the server with modified port using uv run
     process = subprocess.Popen(
-        ["python", str(webhook_path)],
+        ["uv", "run", str(webhook_path)],
         env=env,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -96,7 +96,7 @@ def create_issue_payload(**kwargs) -> dict:
     """Create a GitHub issue webhook payload with sensible defaults.
     
     Args:
-        **kwargs: Override default values (action, issue fields, etc.)
+        **kwargs: Override default values (action, issue fields, repository fields, etc.)
         
     Returns:
         A dictionary representing a GitHub issue webhook payload
@@ -116,16 +116,41 @@ def create_issue_payload(**kwargs) -> dict:
         },
         "repository": {
             "name": "test-repo",
-            "full_name": "test/test-repo"
+            "full_name": "test/test-repo",
+            "html_url": "https://github.com/test/test-repo",
+            "private": False,
+            "owner": {
+                "login": "test"
+            }
         }
     }
     
     # Merge provided kwargs with defaults
     if kwargs:
-        # Handle nested updates
+        # Handle nested updates for issue
         if "issue" in kwargs:
             default_payload["issue"].update(kwargs["issue"])
             del kwargs["issue"]
+        # Handle nested updates for repository
+        if "repository" in kwargs:
+            default_payload["repository"].update(kwargs["repository"])
+            del kwargs["repository"]
         default_payload.update(kwargs)
     
     return default_payload
+
+
+@pytest.fixture
+def test_clone_dir(tmp_path):
+    """Provide a temporary directory for cloning repositories during tests.
+    
+    Args:
+        tmp_path: pytest's built-in tmp_path fixture
+        
+    Yields:
+        Path object pointing to the test clone directory
+    """
+    clone_dir = tmp_path / "test-repos"
+    clone_dir.mkdir(exist_ok=True)
+    yield clone_dir
+    # Cleanup is handled automatically by tmp_path
