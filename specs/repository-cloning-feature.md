@@ -1,18 +1,24 @@
-# Repository Cloning Feature Specification
+# Feature: Repository Cloning on Issue Creation
 
-## Overview
+## Feature Description
+Automatically clone GitHub repositories when issues are created via webhook. When an issue is opened, the webhook handler will parse the repository information from the payload and clone the repository locally using the `gh` CLI. This enables local inspection, analysis, or automated processing of repository content triggered by issue creation.
 
-This specification describes enhancements to the GitHub webhook handler (`webhook.py`) to automatically clone repositories when issues are created. The webhook will parse repository information from the GitHub webhook payload and use the `gh` CLI to clone the repository locally.
+## User Story
+As a webhook server operator  
+I want repositories to be automatically cloned when issues are created  
+So that I can perform local analysis, inspection, or automated processing on the repository content
 
-## Goals
+## Problem Statement
+Currently, the webhook handler only logs issue information to the console but doesn't provide access to the repository content. To perform automated analysis, code inspection, or other operations on the repository, users must manually clone repositories after seeing issue notifications. This manual step is inefficient and prevents automation of repository-based workflows.
 
-The primary goal is to extend the webhook handler to automatically clone the source repository when a new issue is created, enabling local inspection, analysis, or automated processing of the repository content.
+## Solution Statement
+Extend the webhook handler to automatically clone repositories using the GitHub CLI (`gh`) when issue webhooks are received. The implementation will extract repository metadata from the webhook payload, validate the clone target path, and execute the clone operation using `gh repo clone`. The feature will be configurable via environment variables and include robust error handling for common failure scenarios like missing `gh` CLI, existing repositories, and authentication issues.
 
 ## Current Behavior
 
-Currently, when an issue is created, the webhook handler:
+When an issue is created, the webhook handler:
 
-1. Verifies the webhook signature
+1. Verifies the webhook signature using HMAC SHA-256
 2. Parses the webhook payload
 3. Prints issue information to the console (title, number, author, state, URL, created_at, body)
 4. Returns a success response
@@ -21,43 +27,39 @@ Currently, when an issue is created, the webhook handler:
 
 ### 1. Parse Repository Information
 
-Extract and display repository information from the webhook payload, including:
+Extract and display repository information from the webhook payload:
 
 - `repository.full_name` - The full repository name (e.g., "owner/repo")
 - `repository.name` - The repository name only
 - `repository.owner.login` - The repository owner username
 - `repository.html_url` - The repository URL
 - `repository.private` - Whether the repository is private
-- `repository.clone_url` - The HTTPS clone URL
-- `repository.ssh_url` - The SSH clone URL
 
 ### 2. Clone Repository Using `gh` CLI
 
-After parsing the repository information, automatically clone the repository using the GitHub CLI (`gh`).
-
-#### Implementation Details
+After parsing the repository information, automatically clone the repository using the GitHub CLI.
 
 **Clone Location:**
-- Base directory: `./repos/` (relative to webhook.py location)
+- Base directory: `./repos/` (relative to webhook.py location, configurable via environment variable)
 - Full path: `./repos/{owner}/{repo-name}/`
 - Example: `./repos/octocat/Hello-World/`
 
 **Clone Method:**
 - Use `gh repo clone {full_name} {target_path}` command
-- The `gh` CLI will handle authentication automatically using configured credentials
+- The `gh` CLI handles authentication automatically using configured credentials
 - Supports both public and private repositories (if user has access)
 
 **Error Handling:**
 - Check if `gh` CLI is installed and available
-- Handle cases where the repository already exists
-- Handle authentication failures
-- Handle network errors
+- Handle cases where the repository already exists (skip with informational message)
+- Handle authentication failures (log error, continue webhook processing)
+- Handle network errors (log error, continue webhook processing)
 - Handle cases where user lacks access to the repository
 
 **Clone Behavior:**
 - If repository already exists: Skip cloning and log that it already exists
 - If repository doesn't exist: Clone it fresh
-- Optional: Add a flag or environment variable to control update behavior (pull latest changes if exists)
+- Environment variable controls whether to pull updates for existing repos
 
 ### 3. Enhanced Console Output
 
@@ -94,126 +96,145 @@ Add optional environment variables to `.env`:
 
 ```bash
 # Clone behavior
-CLONE_REPOS=true                    # Enable/disable auto-cloning
-CLONE_BASE_DIR=./repos              # Base directory for cloned repos
-CLONE_UPDATE_EXISTING=false         # Pull updates if repo already exists
+CLONE_REPOS=true                    # Enable/disable auto-cloning (default: false)
+CLONE_BASE_DIR=./repos              # Base directory for cloned repos (default: ./repos)
+CLONE_UPDATE_EXISTING=false         # Pull updates if repo already exists (default: false)
 ```
-
-## Implementation Steps
-
-### Step 1: Extract Repository Information
-Modify the `github_webhook` function to extract repository details from the payload:
-
-```python
-repository = payload.get("repository", {})
-repo_full_name = repository.get("full_name")
-repo_name = repository.get("name")
-repo_owner = repository.get("owner", {}).get("login")
-repo_url = repository.get("html_url")
-is_private = repository.get("private", False)
-```
-
-### Step 2: Create Clone Function
-Add a new function to handle repository cloning:
-
-```python
-import subprocess
-from pathlib import Path
-
-def clone_repository(full_name: str, base_dir: str = "./repos") -> dict:
-    """Clone a GitHub repository using gh CLI.
-    
-    Args:
-        full_name: Repository full name (owner/repo)
-        base_dir: Base directory for cloning repositories
-        
-    Returns:
-        dict with status, message, and path
-    """
-    # Implementation details here
-    pass
-```
-
-### Step 3: Check for `gh` CLI
-Verify that `gh` CLI is installed:
-
-```python
-def check_gh_cli_available() -> bool:
-    """Check if gh CLI is installed and authenticated."""
-    try:
-        result = subprocess.run(
-            ["gh", "--version"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        return result.returncode == 0
-    except (subprocess.SubprocessError, FileNotFoundError):
-        return False
-```
-
-### Step 4: Integrate Cloning into Webhook Handler
-Call the clone function within the issue creation handler and display results.
 
 ## Security Considerations
 
-1. **Authentication**: The `gh` CLI must be properly authenticated before the webhook server starts. The server should check for valid authentication on startup.
+1. **Authentication**: The `gh` CLI must be properly authenticated before the webhook server starts. Add a startup check for valid authentication.
 
-2. **Path Traversal**: Validate repository names to prevent path traversal attacks. The owner and repo names should be sanitized.
+2. **Path Traversal**: Validate repository names to prevent path traversal attacks. Sanitize owner and repo names to ensure they don't contain `..`, `/`, or other dangerous characters.
 
 3. **Disk Space**: Cloning repositories can consume significant disk space. Consider implementing:
-   - Maximum number of cloned repositories
-   - Automatic cleanup of old repositories
    - Shallow clones to reduce storage requirements
+   - Cleanup of old repositories based on age or count limits
+   - Disk space checks before cloning
 
-4. **Rate Limiting**: Be aware of GitHub API rate limits when cloning multiple repositories.
+4. **Private Repositories**: Ensure the authenticated user has access to private repositories before attempting to clone.
 
-5. **Private Repositories**: Ensure that the authenticated user has access to private repositories before attempting to clone.
+## Relevant Files
 
-## Testing Plan
+### Existing Files
 
-1. **Unit Tests**:
-   - Test repository information extraction from webhook payload
-   - Test clone function with mocked subprocess calls
-   - Test path construction and validation
+- **`src/webhook.py`** - Main webhook handler that needs to be enhanced with repository cloning functionality
+- **`tests/test_webhook_integration.py`** - Integration tests that validate webhook behavior; needs new tests for cloning feature
+- **`tests/conftest.py`** - Shared pytest fixtures including `webhook_server`, `generate_signature`, and `create_issue_payload`; needs enhancement to support repository field assertions
+- **`.env.sample`** - Sample environment configuration that needs new clone-related variables
+- **`.gitignore`** - Needs to ignore the `repos/` directory where cloned repositories are stored
 
-2. **Integration Tests**:
-   - Test with a real webhook payload for a public repository
-   - Test with a private repository
-   - Test behavior when repository already exists
-   - Test error handling when `gh` CLI is not available
+### New Files
 
-3. **Manual Testing**:
-   - Configure webhook on a test repository
-   - Create an issue and verify automatic cloning
-   - Create another issue and verify handling of existing repository
-   - Test with both public and private repositories
+None required - all changes are additions to existing files.
 
-## Future Enhancements
+## Testing Strategy
 
-1. **Selective Cloning**: Add webhook payload inspection to conditionally clone based on issue labels, title patterns, or other criteria
+### Integration Testing Philosophy
 
-2. **Shallow Clones**: Use `--depth 1` for shallow clones to save space
+Following the project's testing philosophy, we use **integration tests with real repositories** instead of mocks or unit tests. Tests start an actual webhook server as a subprocess and send real HTTP requests. For cloning functionality, tests will use a small real GitHub repository.
 
-3. **Repository Management**: Add endpoints to list, update, or delete cloned repositories
+### Test Repository Selection
 
-4. **Webhook Actions**: Trigger additional automated actions after cloning (linting, testing, analysis)
+Use `octocat/Hello-World` as the test repository because it is:
+- Small (~2KB) - minimal impact on test execution time and disk space
+- Public - no authentication required for basic clone tests
+- Stable - maintained by GitHub and unlikely to disappear
+- Well-known - standard test repository used across GitHub documentation
 
-5. **Multi-event Support**: Extend to handle other webhook events (pull requests, commits, releases)
+### Integration Tests
 
-6. **Database Tracking**: Track cloned repositories in a database with metadata (clone time, last update, issue association)
+**Test Cases:**
+
+1. **Test successful repository cloning**
+   - Send webhook with `octocat/Hello-World` repository
+   - Verify server returns 200 status
+   - Verify repository is cloned to `./test-repos/octocat/Hello-World/`
+   - Verify `.git` directory exists in cloned repository
+   - Cleanup: Remove cloned repository after test
+
+2. **Test handling of existing repository**
+   - Pre-create the repository directory before sending webhook
+   - Send webhook with same repository
+   - Verify server returns 200 status
+   - Verify response indicates repository already exists (not re-cloned)
+   - Verify no error occurs
+   - Cleanup: Remove repository after test
+
+3. **Test cloning disabled via environment variable**
+   - Set `CLONE_REPOS=false` in test environment
+   - Send webhook payload
+   - Verify server returns 200 status
+   - Verify no clone attempt is made (directory not created)
+   
+4. **Test handling when gh CLI is not available**
+   - Mock PATH to exclude `gh` binary location
+   - Send webhook payload
+   - Verify server returns 200 status (webhook still processes)
+   - Verify appropriate error message in response
+   - Verify no clone directory created
+
+5. **Test repository information extraction**
+   - Send webhook with comprehensive repository payload
+   - Verify all repository fields are correctly extracted and logged
+   - Verify response includes repository metadata
+
+6. **Test path sanitization**
+   - Send webhook payload with malicious repository name (e.g., `../../../etc/passwd`)
+   - Verify path traversal is prevented
+   - Verify error response is returned
+
+### Test Fixtures
+
+Enhance `tests/conftest.py` with:
+
+- **`test_clone_dir`** - Fixture that creates a temporary clone directory for tests and cleans it up afterward
+- **Enhanced `create_issue_payload`** - Include full repository object with all necessary fields (full_name, owner, html_url, private, etc.)
+- **`gh_cli_available`** - Fixture that checks if `gh` CLI is available and skips tests if not (or mocks unavailability)
+
+### Edge Cases
+
+- Repository name contains spaces or special characters
+- Repository is private but user is not authenticated
+- Network connection fails during clone
+- Insufficient disk space for clone operation
+- Multiple webhooks received simultaneously for same repository
+- Repository name exceeds filesystem path length limits
+- `gh` CLI installed but not authenticated
+
+## Acceptance Criteria
+
+1. ✅ When an issue webhook is received with `CLONE_REPOS=true`, the repository is cloned to `{CLONE_BASE_DIR}/{owner}/{repo-name}/`
+2. ✅ Repository information (full_name, owner, private status, URL) is extracted from payload and logged
+3. ✅ If repository already exists, cloning is skipped with informational message
+4. ✅ If `gh` CLI is not available, webhook processing continues with error logged
+5. ✅ If `CLONE_REPOS=false` or unset, no cloning is attempted
+6. ✅ Path traversal attempts in repository names are prevented with validation
+7. ✅ Integration tests use real repository (`octocat/Hello-World`) and verify actual cloning
+8. ✅ All integration tests pass without errors
+9. ✅ Existing webhook functionality (signature verification, issue logging) remains unchanged
+10. ✅ `.env.sample` is updated with new configuration variables and documentation
+
+## Implementation Notes
+
+- Use Python's `subprocess` module (built-in) for executing `gh` CLI commands
+- Use `pathlib.Path` (built-in) for safe path handling and validation
+- Implement clone operation asynchronously or with timeout to prevent blocking webhook responses
+- Log all clone operations (success, failure, skip) for debugging and monitoring
+- Ensure repository directory structure (`repos/{owner}/{repo}/`) is created before cloning
+- Add startup validation to check `gh` CLI availability and authentication status
 
 ## Dependencies
 
-- `gh` CLI must be installed on the system
-- User must be authenticated with `gh auth login`
+- `gh` CLI must be installed on the system (runtime requirement, not Python dependency)
+- User must be authenticated with `gh auth login` (runtime requirement)
 - Python `subprocess` module (built-in)
 - Python `pathlib` module (built-in)
 
 ## Backward Compatibility
 
 All changes are additive and optional. The webhook will continue to function as before if:
-- `CLONE_REPOS` is set to `false` or not set
-- `gh` CLI is not available (with appropriate warnings)
+- `CLONE_REPOS` is set to `false` or not set (default behavior)
+- `gh` CLI is not available (with appropriate warnings logged)
 
-Existing functionality (printing issue information) will be preserved.
+Existing functionality (signature verification, issue logging) is preserved without changes.
