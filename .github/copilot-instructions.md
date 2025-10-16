@@ -103,8 +103,43 @@ When an issue webhook is received with `CLONE_REPOS=true`:
 - Python 3.12 or higher
 - [uv](https://github.com/astral-sh/uv) package manager
 - Microsoft DevTunnel CLI (for exposing local endpoints)
+- GitHub CLI (`gh`) - for automated webhook setup
 
 ### Local Testing
+
+#### Automated Setup (Recommended)
+
+The easiest way to start testing webhooks is using the automated setup script:
+
+1. Copy the environment template and configure your secret:
+   ```bash
+   cp .env.sample .env
+   # Edit .env and add your GITHUB_WEBHOOK_SECRET (use: openssl rand -hex 32)
+   ```
+
+2. Ensure GitHub CLI is authenticated:
+   ```bash
+   gh auth login
+   ```
+
+3. Run the setup script with your repository:
+   ```bash
+   ./scripts/dev-setup.sh https://github.com/owner/repo
+   ```
+   
+   This single command will:
+   - Start DevTunnel automatically
+   - Launch the webhook server
+   - Create a GitHub webhook for your repository (configured for issues events only)
+   - Display real-time webhook events in the console
+   
+   Press Ctrl+C to stop both services when done.
+
+4. Test by creating an issue in your repository and watch the console output
+
+#### Manual Setup
+
+If you prefer to run each component separately:
 
 1. Copy the environment template and configure your secret:
    ```bash
@@ -114,12 +149,12 @@ When an issue webhook is received with `CLONE_REPOS=true`:
 
 2. Start the DevTunnel in one terminal:
    ```bash
-   ./start-devtunnel.sh
+   ./scripts/start-devtunnel.sh
    ```
 
 3. Start the webhook server in another terminal:
    ```bash
-   uv run webhook.py
+   uv run src/webhook.py
    ```
 
 4. Configure your GitHub webhook using the DevTunnel URL from step 2
