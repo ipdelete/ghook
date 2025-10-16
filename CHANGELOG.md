@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Automated development setup script (`scripts/dev-setup.sh`) for one-command webhook testing
+  - Automatically starts DevTunnel in the background
+  - Launches webhook server
+  - Creates GitHub webhook via `gh` CLI API
+  - Configures webhook for issues events only
+  - Supports multiple repository URL formats (https, ssh, shorthand)
+  - Graceful cleanup on exit (Ctrl+C)
 - Automatic repository cloning on issue creation via webhook
 - Repository information extraction and display (full_name, owner, private status, URL)
 - Configurable cloning behavior via environment variables:
@@ -23,3 +30,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced console output to include repository details when issues are created
 - Existing repositories are skipped during cloning with informational message
 - `.gitignore` updated to exclude `repos/` and `test-repos/` directories
+- README.md now prioritizes automated setup workflow
+- GitHub CLI (`gh`) added as prerequisite for automated setup

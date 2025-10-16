@@ -4,6 +4,42 @@ Quick setup for testing GitHub webhooks locally using Microsoft DevTunnel.
 
 ## Quick Start
 
+### Automated Setup (Recommended)
+
+The fastest way to get started is using the automated setup script:
+
+1. **Setup Environment**
+   ```bash
+   cp .env.sample .env
+   ```
+   Edit `.env` and set your `GITHUB_WEBHOOK_SECRET` (generate one with `openssl rand -hex 32`)
+
+2. **Run the Setup Script**
+   ```bash
+   ./scripts/dev-setup.sh https://github.com/owner/repo
+   ```
+   
+   This single command will:
+   - Start DevTunnel automatically
+   - Launch the webhook server
+   - Create a GitHub webhook configured for issues events
+   - Display the webhook URL and status
+   
+   Press Ctrl+C to stop both services when done.
+
+**Prerequisites:**
+- GitHub CLI (`gh`) installed and authenticated (`gh auth login`)
+- `.env` file with `GITHUB_WEBHOOK_SECRET` configured
+
+**Supported repository URL formats:**
+- `https://github.com/owner/repo`
+- `git@github.com:owner/repo.git`
+- `owner/repo`
+
+### Manual Setup
+
+If you prefer to run each component separately:
+
 1. **Setup Environment**
    ```bash
    cp .env.sample .env
@@ -21,13 +57,13 @@ Quick setup for testing GitHub webhooks locally using Microsoft DevTunnel.
 
 2. **Start DevTunnel**
    ```bash
-   ./start-devtunnel.sh
+   ./scripts/start-devtunnel.sh
    ```
    Copy the DevTunnel URL from the output (e.g., `https://xxxxx.devtunnels.ms`)
 
 3. **Start Webhook Server**
    ```bash
-   uv run webhook.py
+   uv run src/webhook.py
    ```
 
 4. **Configure GitHub Webhook**
