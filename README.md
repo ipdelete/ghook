@@ -94,6 +94,22 @@ ADIL combines your prompt with project context from `docs/prime.md` and invokes 
 - GitHub Copilot CLI installed and authenticated
 - Python 3.12 or higher
 
+### Koozie ASCII Art
+
+Display "koozie" in fun ASCII art format:
+
+```bash
+./src/koozie.py
+```
+
+Or via uv:
+
+```bash
+uv run src/koozie.py
+```
+
+This lightweight utility showcases the project's playful side and can be integrated into welcome messages or project documentation.
+
 ## Testing
 
 Run the integration test suite to verify the webhook server works correctly:

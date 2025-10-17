@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Koozie ASCII art script (`src/koozie.py`)
+  - Displays "koozie" in large, colorful ASCII art format
+  - Executable as standalone script or via `uv run`
+  - Uses `pyfiglet` library for flexible ASCII art generation
+  - Lightweight utility with no project configuration required
 - ADIL (AI Developer Inner-Loop) command-line utility (`src/adil.py`)
   - Integrates GitHub Copilot CLI into development workflow
   - Automatically loads project context from `docs/prime.md`
