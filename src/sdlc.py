@@ -219,7 +219,19 @@ class StageResponse:
         Returns:
             Path to the created specification file, or None if not found
         """
-        # Look for lines containing "specs/" and ending with ".md"
+        import re
+        
+        # Look for specs/*.md pattern in the output
+        # Handles various formats: specs/file.md, `specs/file.md`, at specs/file.md, etc.
+        pattern = r'(specs/[\w-]+\.md)'
+        matches = re.findall(pattern, self.stdout)
+        
+        if matches:
+            # Return the first match found
+            self.spec_path = matches[0]
+            return self.spec_path
+        
+        # Fallback: Look for lines containing "specs/" and ending with ".md"
         for line in self.stdout.split('\n'):
             line = line.strip()
             if 'specs/' in line and line.endswith('.md'):
@@ -227,6 +239,7 @@ class StageResponse:
                 if line.startswith('specs/'):
                     self.spec_path = line
                     return self.spec_path
+        
         return None
     
     def parse_branch_name(self) -> Optional[str]:

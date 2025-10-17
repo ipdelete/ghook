@@ -2,6 +2,8 @@
 
 Create a new plan to implement a feature using the exact specified markdown `Plan Format`. Follow the `Instructions` to create the plan and use the `Relevant Files` to focus on the right files.
 
+Only create the plan do not implement the feature.
+
 ## Variables
 feature_description: $ARGUMENTS
 
