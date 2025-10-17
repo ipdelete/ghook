@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- ADIL (AI Developer Inner-Loop) command-line utility (`src/adil.py`)
+  - Integrates GitHub Copilot CLI into development workflow
+  - Automatically loads project context from `docs/prime.md`
+  - Accepts task descriptions as command-line arguments
+  - Combines user prompts with project context for Copilot
+  - Invokes Copilot with `--allow-all-tools` flag for automation
+  - Supports both direct execution (`./src/adil.py`) and uv invocation (`uv run src/adil.py`)
+  - Includes error handling for missing copilot command and missing arguments
 - Automated development setup script (`scripts/dev-setup.sh`) for one-command webhook testing
   - Automatically starts DevTunnel in the background
   - Launches webhook server

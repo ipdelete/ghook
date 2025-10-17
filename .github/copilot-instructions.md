@@ -104,6 +104,7 @@ When an issue webhook is received with `CLONE_REPOS=true`:
 - [uv](https://github.com/astral-sh/uv) package manager
 - Microsoft DevTunnel CLI (for exposing local endpoints)
 - GitHub CLI (`gh`) - for automated webhook setup
+- GitHub Copilot CLI (optional, for ADIL integration)
 
 ### Local Testing
 
@@ -136,6 +137,79 @@ The easiest way to start testing webhooks is using the automated setup script:
    Press Ctrl+C to stop both services when done.
 
 4. Test by creating an issue in your repository and watch the console output
+
+### AI Developer Inner-Loop (ADIL)
+
+ADIL is a command-line utility that integrates GitHub Copilot CLI into the development workflow. It automatically loads project context from `docs/prime.md` and helps with development tasks:
+
+#### Using ADIL
+
+Invoke ADIL with a development task description:
+
+```bash
+# Get help implementing a feature
+./src/adil.py "add support for pull request events"
+
+# Fix bugs with Copilot assistance
+./src/adil.py "fix the webhook signature verification"
+
+# Generate documentation
+./src/adil.py "write comprehensive docstrings for webhook.py"
+
+# Or use via uv
+uv run src/adil.py "optimize the signature verification performance"
+```
+
+#### Setup
+
+1. **Install GitHub Copilot CLI**
+   - Install: `pip install github-copilot-cli`
+   - Or use: `pip install --upgrade github-copilot-cli`
+
+2. **Authenticate**
+   ```bash
+   copilot auth login
+   ```
+   Follow the prompts to authenticate with your GitHub account.
+
+3. **Verify Installation**
+   ```bash
+   copilot --version
+   ```
+
+#### How ADIL Works
+
+ADIL automatically:
+1. Accepts your task description as command-line arguments
+2. Combines it with project context from `docs/prime.md`
+3. Invokes Copilot with the full context and `--allow-all-tools` flag
+4. Enables automation to execute suggested commands directly
+
+This eliminates context-switching and ensures Copilot has the same project understanding across your development team.
+
+#### Advanced Usage
+
+Pass multi-word prompts with quotes:
+```bash
+./src/adil.py "refactor the webhook handler to support more events"
+```
+
+Use with complex development tasks:
+```bash
+./src/adil.py "add integration test for the new pull request handler"
+```
+
+#### Troubleshooting
+
+**Copilot command not found:**
+- Verify installation: `which copilot`
+- Reinstall if needed: `pip install --upgrade github-copilot-cli`
+- Ensure the install location is in your PATH
+
+**Authentication errors:**
+- Check authentication: `copilot auth status`
+- Re-authenticate: `copilot auth login`
+- Verify GitHub account has access to required resources
 
 #### Manual Setup
 

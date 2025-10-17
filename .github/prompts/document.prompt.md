@@ -27,7 +27,7 @@ Document changes made in the current branch by updating README.md, GitHub instru
    
    Review existing documentation to understand structure and style:
    - Read `README.md` to see current quick start and testing sections
-   - Read `.github/github-instructions.md` to see current workflow documentation
+   - Read `.github/copilot-instructions.md` to see current workflow documentation
    - Read `CHANGELOG.md` to see changelog format (if it exists)
 
 4. **Update README.md**
@@ -39,7 +39,7 @@ Document changes made in the current branch by updating README.md, GitHub instru
    - Keep README focused on the essential "getting started" information
    - Maintain existing formatting and style
 
-5. **Update .github/github-instructions.md**
+5. **Update .github/copilot-instructions.md**
    
    Add detailed technical documentation:
    - Add new features to relevant sections (Setup, Development Workflow, Testing, etc.)
@@ -99,7 +99,7 @@ Updated documentation for repository cloning feature:
 README.md:
 - Added cloning configuration to Quick Start
 
-.github/github-instructions.md:
+.github/copilot-instructions.md:
 - Added "Repository Cloning" section under Development Workflow
 - Documented CLONE_REPOS, CLONE_BASE_DIR, and CLONE_UPDATE_EXISTING environment variables
 - Added troubleshooting section for gh CLI issues
@@ -112,8 +112,8 @@ CHANGELOG.md:
 
 - Focus on user-facing documentation, not internal code comments
 - README.md should be concise for quick reference
-- .github/github-instructions.md should be comprehensive for contributors
+- .github/copilot-instructions.md should be comprehensive for contributors
 - CHANGELOG.md should follow semantic versioning principles
 - If changes are internal refactoring with no user impact, update may be minimal
 - Always maintain existing documentation structure and style
-- Consider the audience: beginners for README, developers for github-instructions
+- Consider the audience: beginners for README, developers for copilot-instructions
