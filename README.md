@@ -76,6 +76,24 @@ If you prefer to run each component separately:
 
 The webhook will print issue details to the console when issues are created or updated. If `CLONE_REPOS=true`, it will also automatically clone the repository locally.
 
+## AI Developer Inner-Loop (ADIL)
+
+ADIL is a command-line utility that integrates GitHub Copilot CLI into your development workflow. It automatically loads project context and helps with development tasks:
+
+```bash
+# Get help with implementing a feature
+./src/adil.py "add support for pull request events"
+
+# Or use via uv
+uv run src/adil.py "fix the webhook signature verification"
+```
+
+ADIL combines your prompt with project context from `docs/prime.md` and invokes Copilot with automation enabled. This accelerates the development loop by eliminating manual context setup.
+
+**Prerequisites:**
+- GitHub Copilot CLI installed and authenticated
+- Python 3.12 or higher
+
 ## Testing
 
 Run the integration test suite to verify the webhook server works correctly:

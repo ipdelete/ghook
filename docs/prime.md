@@ -15,7 +15,7 @@ This command initializes the context for working with this repository.
    
    Read the GitHub instructions file to understand the project and development workflow:
    ```bash
-   cat .github/github-instructions.md
+   cat .github/copilot-instructions.md
    ```
 
 3. **Review available slash commands**
