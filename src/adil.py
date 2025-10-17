@@ -10,7 +10,6 @@ import sys
 
 def main():
     """ADIL: AI Developer Inner-Loop utility.
-    
     Integrates GitHub Copilot CLI with project context from docs/prime.md.
     Constructs a combined prompt and invokes copilot with appropriate flags.
     """
