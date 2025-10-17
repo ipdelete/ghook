@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- SDLC (Complete SDLC Automation) tool (`src/sdlc.py`)
+  - Orchestrates complete software development lifecycle from feature planning to pull request creation
+  - Executes multiple Copilot prompts in sequence: feature planning → branch creation → implementation → documentation → pull request
+  - Manages context automatically between workflow stages (passes spec file and branch information)
+  - Generates unique 8-character workflow IDs for tracking and audit trail
+  - Creates timestamped markdown log files in `logs/<workflow-id>/logfile_<timestamp>.md` format
+  - Logs all commands executed and their outputs for debugging and audit purposes
+  - Graceful error handling with informative failure messages identifying which stage failed
+  - Clear console output showing workflow progress and final summary
+  - Integrates with GitHub Copilot CLI for all automation stages
+  - Creates feature specifications, git branches, documentation updates, and pull requests automatically
 - Koozie ASCII art script (`src/koozie.py`)
   - Displays "koozie" in large, colorful ASCII art format
   - Executable as standalone script or via `uv run`

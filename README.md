@@ -76,6 +76,34 @@ If you prefer to run each component separately:
 
 The webhook will print issue details to the console when issues are created or updated. If `CLONE_REPOS=true`, it will also automatically clone the repository locally.
 
+## Complete SDLC Automation (SDLC)
+
+SDLC is a complete software development lifecycle automation tool that orchestrates the entire feature development workflow from planning to pull request creation:
+
+```bash
+# Automate complete feature development
+./src/sdlc.py "add support for pull request events"
+
+# Or use via uv
+uv run src/sdlc.py "add timestamp logging to webhook events"
+```
+
+SDLC executes multiple Copilot prompts in sequence, managing context between stages and logging all activities. The workflow orchestrates: feature planning → branch creation → implementation → documentation → pull request.
+
+**How It Works:**
+1. Feature planning: Creates a feature spec based on your description
+2. Branch creation: Creates a git branch for the feature
+3. Implementation: Implements the feature code
+4. Documentation: Updates README and GitHub instructions
+5. Pull request: Creates a GitHub pull request
+
+Each stage logs its command and output to a timestamped markdown file for audit trail and debugging.
+
+**Prerequisites:**
+- GitHub Copilot CLI installed and authenticated
+- Python 3.12 or higher
+- Git repository initialized locally
+
 ## AI Developer Inner-Loop (ADIL)
 
 ADIL is a command-line utility that integrates GitHub Copilot CLI into your development workflow. It automatically loads project context and helps with development tasks:
