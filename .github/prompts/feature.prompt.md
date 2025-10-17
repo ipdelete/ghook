@@ -2,20 +2,37 @@
 
 Create a new plan to implement a feature using the exact specified markdown `Plan Format`. Follow the `Instructions` to create the plan and use the `Relevant Files` to focus on the right files.
 
-Only create the plan do not implement the feature.
+**THIS IS A PLANNING STAGE ONLY - DO NOT IMPLEMENT THE FEATURE**
 
 ## Variables
 feature_description: $ARGUMENTS
 
 ## Instructions
 
+### ⚠️ CRITICAL: PLANNING ONLY - NO IMPLEMENTATION
+
+**DO NOT:**
+- ❌ Create any source code files (`.py`, `.js`, `.sh`, etc.)
+- ❌ Modify any existing source code
+- ❌ Execute any implementation steps
+- ❌ Run any commands except for reading files to understand the codebase
+- ❌ Create anything except the specification document
+
+**DO:**
+- ✓ Research the codebase by reading existing files
+- ✓ Create ONLY the implementation plan document in `specs/`
+- ✓ Think deeply about the design and approach
+- ✓ Return the path to the created spec file
+
+### Planning Instructions
+
 - IMPORTANT: You're writing a plan to implement a net new feature based on the user's feature description that will add value to the application.
-- IMPORTANT: The feature description contains the purpose and requirements for the feature. Remember we're not implementing the feature, we're creating an actionable implementation plan based on the `Plan Format` below.
+- IMPORTANT: The feature description contains the purpose and requirements for the feature. Remember we're ONLY creating an actionable implementation plan, NOT implementing it.
 - Create the plan in the `specs/` directory with a descriptive filename: `{feature-name}-implementation-plan.md`
   - Replace `{feature-name}` with a kebab-case name derived from the feature description (e.g., "Add webhook logging" becomes "webhook-logging-implementation-plan.md")
 - Use the `Plan Format` below to create the plan.
 - Research the codebase to understand existing patterns, architecture, and conventions before planning the feature.
-- IMPORTANT: Replace every <placeholder> in the `Plan Format` with the requested value. Add as much detail as needed to implement the feature successfully.
+- IMPORTANT: Replace every <placeholder> in the `Plan Format` with the requested value. Add as much detail as needed for someone else to implement the feature successfully.
 - Use your reasoning: THINK HARD about the feature requirements, design, and implementation approach.
 - Follow existing patterns and conventions in the codebase. Don't reinvent the wheel.
 - Design for extensibility and maintainability.
@@ -76,11 +93,11 @@ Use these files to implement the feature:
 <describe how the feature will integrate with existing functionality>
 
 ## Step by Step Tasks
-IMPORTANT: Execute every step in order, top to bottom.
+IMPORTANT: These are the steps that will be executed during the BUILD stage, NOT now during planning.
 
-<list step by step tasks as h3 headers plus bullet points. Use as many h3 headers as needed to implement the feature. Order matters, start with the foundational shared changes required then move on to the specific implementation. Include testing throughout the implementation process.>
+<list step by step tasks as h3 headers plus bullet points. Use as many h3 headers as needed to describe how to implement the feature. Order matters, start with the foundational shared changes required then move on to the specific implementation. Include testing throughout the implementation process.>
 
-<Your last step should be running the `Validation Commands` to validate the feature works correctly with zero regressions.>
+<The last step should be running the `Validation Commands` to validate the feature works correctly with zero regressions.>
 
 ## Testing Strategy
 ### Manual Testing
@@ -110,6 +127,18 @@ Example commands:
 ## Feature
 Use the feature description from the `feature_description` variable to create the implementation plan.
 
+## ⚠️ REMINDER: PLANNING ONLY
+
+Before completing this task, verify you have:
+- ✓ Created ONLY the spec file in `specs/` directory
+- ✓ NOT created any source code files
+- ✓ NOT modified any existing code
+- ✓ NOT executed any implementation steps
+
+The implementation will happen in a separate BUILD stage. Your job is ONLY to create the plan.
+
 ## Report
 
 - IMPORTANT: Return exclusively the path to the plan file created and nothing else.
+- The path should be in the format: `specs/{feature-name}-implementation-plan.md`
+- Do NOT report any source code files, as none should have been created during this planning stage.

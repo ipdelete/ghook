@@ -215,36 +215,39 @@ class StageResponse:
     
     def parse_spec_path(self) -> Optional[str]:
         """Extract spec file path from feature stage output.
-        
+
         Returns:
             Path to the created specification file, or None if not found
         """
         import re
-        
+
         # Look for specs/*.md pattern in the output
         # Handles various formats: specs/file.md, `specs/file.md`, at specs/file.md, etc.
-        pattern = r'(specs/[\w-]+\.md)'
+        # Pattern allows for hyphens, underscores, and alphanumeric characters in filename
+        pattern = r'`?(specs/[\w-]+\.md)`?'
         matches = re.findall(pattern, self.stdout)
-        
+
         if matches:
-            # Return the first match found
-            self.spec_path = matches[0]
+            # Return the first match found, stripped of any backticks
+            spec_path = matches[0].strip('`"\'')
+            self.spec_path = spec_path
             return self.spec_path
-        
+
         # Fallback: Look for lines containing "specs/" and ending with ".md"
         for line in self.stdout.split('\n'):
-            line = line.strip()
-            if 'specs/' in line and line.endswith('.md'):
-                # Extract just the path part
-                if line.startswith('specs/'):
-                    self.spec_path = line
+            line = line.strip().strip('`"\'')
+            if 'specs/' in line and '.md' in line:
+                # Extract just the path part using regex
+                match = re.search(r'(specs/[\w-]+\.md)', line)
+                if match:
+                    self.spec_path = match.group(1)
                     return self.spec_path
-        
+
         return None
     
     def parse_branch_name(self) -> Optional[str]:
         """Extract branch name from branch stage output.
-        
+
         Returns:
             The created branch name, or None if not found
         """
@@ -255,7 +258,9 @@ class StageResponse:
                 # Extract the branch name after the colon
                 parts = line.split(':', 1)
                 if len(parts) == 2:
-                    self.branch_name = parts[1].strip()
+                    # Strip whitespace and markdown formatting (backticks, quotes)
+                    branch_name = parts[1].strip().strip('`"\'')
+                    self.branch_name = branch_name
                     return self.branch_name
         return None
 
@@ -330,15 +335,49 @@ class WorkflowOrchestrator:
         """Execute the feature planning stage."""
         command = self.command_builder.build_feature_command(self.user_input)
         response = self.run_stage("Feature Planning", command)
-        
+
         if response.success:
             self.spec_path = response.parse_spec_path()
             if self.spec_path:
                 print(f"✓ Spec file created: {self.spec_path}")
             else:
                 print("⚠ Warning: Could not extract spec file path from output")
-        
+
+            # Validate that only planning occurred (no implementation)
+            self._validate_planning_only(response)
+
         return response
+
+    def _validate_planning_only(self, response: StageResponse) -> None:
+        """Validate that the feature stage only created the spec file, not implementation.
+
+        Args:
+            response: The response from the feature planning stage
+        """
+        import re
+
+        # Look for indicators that implementation occurred
+        implementation_indicators = [
+            r'Create src/[\w.-]+\.py',
+            r'✓ Create src/',
+            r'chmod \+x.*src/',
+            r'Make.*executable',
+            r'Run.*script',
+            r'Execute.*command',
+        ]
+
+        warnings = []
+        for pattern in implementation_indicators:
+            if re.search(pattern, response.stdout, re.IGNORECASE):
+                warnings.append(f"Detected potential implementation activity: matched pattern '{pattern}'")
+
+        if warnings:
+            print("\n⚠️  WARNING: Feature planning stage may have performed implementation:")
+            for warning in warnings:
+                print(f"   - {warning}")
+            print("   The feature stage should ONLY create the spec file.")
+            print("   Implementation should happen in the BUILD stage.")
+            print("   This may cause issues with the workflow.\n")
     
     def run_branch_stage(self) -> StageResponse:
         """Execute the branch creation stage."""
