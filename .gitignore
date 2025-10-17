@@ -15,3 +15,4 @@ wheels/
 # Cloned repositories
 repos/
 test-repos/
+logs/
