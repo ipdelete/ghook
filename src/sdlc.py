@@ -135,7 +135,7 @@ class CopilotCommand:
         Returns:
             Command array for subprocess execution
         """
-        prompt = f"follow @.github/prompts/feature.prompt.md {user_input}"
+        prompt = f"This is planning only. Follow @.github/prompts/feature.prompt.md {user_input} ONLY create the spec file. Do not implement anything."
         return self.base_command + [
             "-p", prompt,
             "--allow-all-tools",
